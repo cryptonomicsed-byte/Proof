@@ -1,0 +1,182 @@
+{
+  "name": "Proof",
+  "symbol": "PROOF",
+  "description": "Proof is a reputation token for agent-native work verification. Every contribution to a Buzz workspace — code review, bug fix, documentation, CI run, workflow execution — can be cryptographically attested and tokenized. PROOF tokens reward verified work, enable portable agent reputation across Buzz communities, and create a sustainable economy where agents earn, spend, and compound value.",
+  "decimals": 9,
+  "total_supply": 1000000000,
+  "token_type": "solana-spl",
+  "launch_platform": "pump.fun",
+  "mint_authority": "LAUNCHER_KEY",
+  "freeze_authority": null,
+  "tokenomics": {
+    "total_supply": 1000000000,
+    "decimals": 9,
+    "effective_supply": 1000000000,
+    "circulating_after_launch": 600000000,
+    "initial_pool_liquidity": 100000000,
+    "locked_reserve": 300000000,
+    "distribution": {
+      "agent_rewards": {
+        "amount": 400000000,
+        "percent": 40,
+        "description": "Distributed to agents and humans who complete verifiable work in Buzz workspaces. Paid per attested contribution.",
+        "vesting": "continuous",
+        "mechanism": "proof_distribution",
+        "cliff_months": 0,
+        "vest_months": 24
+      },
+      "initial_liquidity": {
+        "amount": 100000000,
+        "percent": 10,
+        "description": "Locked liquidity pool on Raydium/Jupiter after pump.fun completion. Locked for 12 months.",
+        "lock_months": 12,
+        "vesting": "locked"
+      },
+      "team_reserve": {
+        "amount": 100000000,
+        "percent": 10,
+        "description": "Team and core contributors. 3-month cliff, then 18-month linear vest.",
+        "cliff_months": 3,
+        "vest_months": 21
+      },
+      "community_fund": {
+        "amount": 150000000,
+        "percent": 15,
+        "description": "Community grants, bounty programs, and ecosystem development. Governed by PROOF holders.",
+        "vesting": "governance-controlled",
+        "cliff_months": 0,
+        "vest_months": 36
+      },
+      "buyback_reserve": {
+        "amount": 100000000,
+        "percent": 10,
+        "description": "Funds algorithmic buybacks from protocol revenue. See buyback section below.",
+        "vesting": "dynamic",
+        "cliff_months": 0,
+        "vest_months": 0
+      },
+      "burn_pool": {
+        "amount": 150000000,
+        "percent": 15,
+        "description": "Initially allocated to burn events. Tokens here are permanently locked and count toward supply reduction.",
+        "lock_months": 0,
+        "vesting": "burn"
+      }
+    }
+  },
+  "buyback_mechanism": {
+    "description": "Protocol-funded buybacks from fee revenue create a deflationary floor price.",
+    "funding_source": "0.5% of all PROOF rewards distributed (deducted at source)",
+    "buyback_frequency": "daily",
+    "buyback_method": "JPool_limit_order",
+    "buyback_amount_pct_of_revenue": 50,
+    "buyback_purpose": "tokens_purchased_are_burned",
+    "minimum_buyback_size_sol": 0.1,
+    "maximum_buyback_size_sol": 5.0,
+    "slippage_tolerance_bps": 100,
+    "auto_trigger": "when_reserve_exceeds_100_sol"
+  },
+  "burn_mechanism": {
+    "description": "Multiple burn streams create perpetual deflationary pressure.",
+    "burn_streams": {
+      "transaction_fee_burn": {
+        "percent": 2,
+        "description": "2% of all PROOF rewards paid are burned immediately upon distribution",
+        "trigger": "per_transaction"
+      },
+      "failed_action_burn": {
+        "amount_per_event": 1000,
+        "description": "Each failed attestation attempt burns 1000 PROOF (prevents spam)",
+        "trigger": "per_event"
+      },
+      "milestone_burn": {
+        "description": "When PROOF price exceeds milestones, a percentage of the buyback reserve is burned",
+        "milestones": [
+          {"price_sol": 0.001, "burn_pct": 5},
+          {"price_sol": 0.005, "burn_pct": 10},
+          {"price_sol": 0.01, "burn_pct": 15},
+          {"price_sol": 0.05, "burn_pct": 20},
+          {"price_sol": 0.1, "burn_pct": 25}
+        ]
+      },
+      "governance_burn": {
+        "description": "Community-governed burn proposals can burn from the community fund",
+        "quorum_pct": 5,
+        "max_burn_per_proposal_pct": 2
+      }
+    }
+  },
+  "investor_rewards": {
+    "staking": {
+      "description": "Stake PROOF to earn a share of protocol fees and new attestation rewards",
+      "min_stake": 100,
+      "lockup_options": [
+        {"duration_days": 30, "apr_pct": 8},
+        {"duration_days": 90, "apr_pct": 12},
+        {"duration_days": 365, "apr_pct": 20}
+      ],
+      "reward_source": "burn_pool + protocol_fee_share",
+      "compound": true
+    },
+    "revenue_share": {
+      "description": "Stakers receive a proportional share of the buyback revenue",
+      "distribution_method": "daily_snapshot",
+      "eligibility": "must_stake_at_snapshot_time"
+    },
+    "airdrop_eligibility": {
+      "description": "Holders of >1000 PROOF receive airdrops from the community fund quarterly",
+      "threshold": 1000,
+      "frequency": "quarterly",
+      "source": "community_fund"
+    }
+  },
+  "agent_incentives": {
+    "attestation_reward": {
+      "description": "Agents earn PROOF when their contributions are attested as quality work",
+      "base_reward": {
+        "bug_fix": 500,
+        "feature_merge": 2000,
+        "doc_update": 200,
+        "ci_pass": 50,
+        "workflow_complete": 1000,
+        "code_review": 300,
+        "security_fix": 3000,
+        "performance_improvement": 1500
+      },
+      "quality_multiplier": {
+        "description": "Rewards multiplied by the attestation quality score (0.5x to 3x)",
+        "min_quality": 0.5,
+        "max_quality": 3.0
+      },
+      "cooldown_seconds": 60,
+      "max_daily_reward": 50000
+    },
+    "reputation_compound": {
+      "description": "Agents with higher reputation scores earn proportionally more per attestation",
+      "rep_tiers": {
+        "unverified": {"multiplier": 1.0},
+        "verified": {"multiplier": 1.25},
+        "trusted": {"multiplier": 1.5},
+        "elite": {"multiplier": 2.0},
+        "legendary": {"multiplier": 3.0}
+      }
+    },
+    "compute_payments": {
+      "description": "Agents can spend PROOF to request compute resources from the Proof network",
+      "rate_per_cpu_hour": 100,
+      "rate_per_gpu_hour": 500,
+      "rate_per_memory_gb_hour": 10
+    }
+  },
+  "governance": {
+    "description": "PROOF holders govern the protocol via Nostr-signed proposals distributed through Buzz channels",
+    "proposal_types": ["parameter_change", "fund_allocation", "burn_proposal", "upgrade", "community_grant"],
+    "quorum_percent": 3,
+    "min_proposal_stake": 100000,
+    "voting_period_hours": 72,
+    "execution_delay_hours": 24,
+    "vote_type": "token_weighted",
+    "delegation": true,
+    "delegation_ratio": "1_vote_per_1_proof"
+  }
+}

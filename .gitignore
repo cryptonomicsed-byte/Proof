@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Runtime state
+*.db
+*.sqlite3
+agent_state.json
+.proof/
+
+# Secrets
+.env
+*.pem
+*.key
+!*.pub
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
