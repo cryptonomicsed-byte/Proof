@@ -351,12 +351,22 @@ class ProofRelay:
         now = int(time.time())
 
         if row is None:
+            # First attestation for this pubkey. The insert must already carry
+            # this attestation's contribution — otherwise the very first piece
+            # of verified work is silently discarded, and an agent with one
+            # attestation has score 0 / count 0 (observed against this relay).
+            total = 1
+            new_quality = quality
+            new_score = new_quality * 100 + total * 5 + 50  # Simple composite
+            tier = 'unverified'
+            if new_score >= 300 and total >= 15:
+                tier = 'trusted'
             self.conn.execute(
                 """INSERT INTO reputations
                    (pubkey, tier, reputation_score, total_attestations,
                     total_rewards_earned, avg_quality, last_seen)
                    VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                (pubkey, 'unverified', 0, 0, 0, 0, now)
+                (pubkey, tier, new_score, total, reward, new_quality, now)
             )
         else:
             total = row['total_attestations'] + 1
